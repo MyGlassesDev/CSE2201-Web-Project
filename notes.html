@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes - Motion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="CSS/style.css">
+    <style>
+        /* ── View toggle ── */
+        .view-toggle .btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        /*Sticky Notes*/
+        #stickyBoard {
+            position: relative;
+            min-height: 600px;
+            background-color: #f1f5f9;
+            background-image:
+                linear-gradient(rgba(37,99,235,.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(37,99,235,.06) 1px, transparent 1px);
+            background-size: 32px 32px;
+            border-radius: 1rem;
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+        }
+
+        /* Individual sticky note */
+        .sticky-note {
+            position: absolute;
+            width: 200px;
+            min-height: 160px;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            box-shadow: 3px 4px 14px rgba(0,0,0,.15);
+            cursor: grab;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow .15s, transform .15s;
+            z-index: 10;
+
+        }
+        .sticky-note:active { cursor: grabbing; box-shadow: 6px 8px 22px rgba(0,0,0,.22); transform: rotate(1deg) scale(1.03); z-index: 100; }
+        .sticky-note.dragging { opacity: .85; z-index: 200; }
+
+        /* Sticky colour variants */
+        .sticky-yellow { background: #fff9c4; border-top: 6px solid #f9d835; }
+        .sticky-blue   { background: #dbeafe; border-top: 6px solid #60a5fa; }
+        .sticky-green  { background: #dcfce7; border-top: 6px solid #4ade80; }
+        .sticky-pink   { background: #fce7f3; border-top: 6px solid #f472b6; }
+        .sticky-orange { background: #ffedd5; border-top: 6px solid #fb923c; }
+        .sticky-purple { background: #ede9fe; border-top: 6px solid #a78bfa; }
+
+
+        .sticky-note .sticky-title {
+            font-weight: 600;
+            font-size: .85rem;
+            margin-bottom: .35rem;
+            color: #1e293b;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+        }
+
+
+        .sticky-note .sticky-body {
+            font-size: .78rem;
+            color: #334155;
+            flex: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            -webkit-box-orient: vertical;
+        }
+
+
+        .sticky-note .sticky-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: .3rem;
+            margin-top: .5rem;
+        }
+
+
+        .sticky-note .sticky-actions button {
+            background: none;
+            border: none;
+            padding: 2px 5px;
+            border-radius: .3rem;
+            font-size: .7rem;
+            cursor: pointer;
+            color: #64748b;
+            transition: background .1s;
+        }
+
+
+        .sticky-note .sticky-actions button:hover { background: rgba(0,0,0,.08); }
+        .sticky-note .sticky-actions .btn-expand { color: #2563eb; }
+        .sticky-note .sticky-actions .btn-delete-note { color: #dc2626; }
+
+
+        /* full size note veiw*/
+        #listView .note-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 1rem;
+            transition: box-shadow .2s, transform .2s;
+            overflow: hidden;
+        }
+
+        #listView .note-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+        .note-card .note-color-bar {
+            height: 6px;
+        }
+
+        .note-card .note-body-full {
+            padding: 1rem 1.25rem;
+        }
+
+        .note-card .note-title-full {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: .4rem;
+            color: #0f172a;
+        }
+
+        .note-card .note-content-full {
+            font-size: .9rem;
+            color: #334155;
+            white-space: pre-wrap;
+            margin-bottom: .75rem;
+        }
+
+        .note-card .note-meta {
+            font-size: .75rem;
+            color: var(--gray-500);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: .5rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .note-card .note-meta .note-actions button {
+            background: none;
+            border: none;
+            padding: 3px 8px;
+            border-radius: .4rem;
+            font-size: .78rem;
+            cursor: pointer;
+            color: #64748b;
+            transition: background .1s;
+        }
+
+        .note-card .note-meta .note-actions button:hover { background: var(--gray-100); }
+        .note-card .note-meta .note-actions .btn-delete-list { color: #dc2626; }
+
+        /* drag and drop listing order*/
+        #listView .note-card.drag-over {
+            outline: 2px dashed var(--primary);
+            outline-offset: 2px;
+        }
+
+        #listView .note-card[draggable="true"] { cursor: grab; }
+        #listView .note-card[draggable="true"]:active { cursor: grabbing; }
+
+
+        /* create and edit note*/
+        #noteModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,.55);
+            backdrop-filter: blur(3px);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #noteModal.open { display: flex; }
+
+        #noteModalCard {
+            background: var(--white);
+            border-radius: 1.25rem;
+            width: min(560px, 94vw);
+            padding: 1.75rem;
+            box-shadow: var(--shadow-lg);
+            animation: popIn .18s ease;
+        }
+        @keyframes popIn { from { transform: scale(.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        #noteModalCard h5 { font-weight: 700; font-size: 1.1rem; margin-bottom: 1.25rem; }
+
+        .color-picker { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+        .color-dot {
+            width: 26px; height: 26px; border-radius: 50%;
+            cursor: pointer; border: 2px solid transparent;
+            transition: transform .1s, border-color .1s;
+        }
+
+        .color-dot:hover { transform: scale(1.15); }
+        .color-dot.selected { border-color: #0f172a; transform: scale(1.15); }
+
+        /* Fullscreen note expand modal */
+        #expandModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,.6);
+            backdrop-filter: blur(4px);
+            z-index: 4000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #expandModal.open { display: flex; }
+        #expandModalCard {
+            background: var(--white);
+            border-radius: 1.25rem;
+            width: min(680px, 96vw);
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            animation: popIn .18s ease;
+        }
+
+        #expandModalCard .expand-title { font-size: 1.4rem; font-weight: 700; margin-bottom: .75rem; }
+        #expandModalCard .expand-content { font-size: 1rem; color: #334155; white-space: pre-wrap; line-height: 1.75; }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray-500);
+        }
+        
+        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: .4; }
+
+        /* Drag handle for list view*/
+        .drag-handle {
+            cursor: grab;
+            color: var(--gray-500);
+            padding: 0 .5rem;
+            font-size: 1.1rem;
+        }
+        .drag-handle:active { cursor: grabbing; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Motion</a>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <a href="index.html" class="btn btn-outline-secondary rounded-pill px-4">Dashboard</a>
+                <a href="calendar.html" class="btn btn-outline-secondary rounded-pill px-4">Calendar</a>
+                <a href="reminders.html" class="btn btn-outline-secondary rounded-pill px-4">Reminders</a>
+                <a href="login.html" class="btn btn-danger rounded-pill px-4">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header + controls -->
+    <section class="py-4">
+        <div class="container d-flex flex-wrap align-items-center gap-3 justify-content-between">
+            <h3 class="mb-0">My Notes</h3>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <!-- View toggle -->
+                <div class="btn-group view-toggle" role="group" aria-label="View toggle">
+                    <button type="button" class="btn btn-outline-secondary active" id="btnStickyView" title="Sticky board view">🗒 Board</button>
+                    <button type="button" class="btn btn-outline-secondary" id="btnListView" title="List view">📄 List</button>
+                </div>
+                <!-- New note -->
+                <button class="btn btn-primary" id="newNoteBtn">+ New Note</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ Sticky Board Veiw ═══════════ -->
+    <section class="pb-5" id="stickySection">
+        <div class="container">
+            <div id="stickyBoard">
+                <div id="stickyEmpty" class="empty-state" style="display:none;">
+                    <div class="empty-icon">📝</div>
+                    <p>No notes yet. Click <strong>+ New Note</strong> to get started.</p>
+                </div>
+            </div>
+            <p class="text-muted mt-2" style="font-size:.8rem;">💡 Drag notes anywhere on the board to organise them.</p>
+        </div>
+    </section>
+
+    <!-- ═══════════ Full size vewi ═══════════ -->
+    <section class="pb-5" id="listSection" style="display:none;">
+        <div class="container">
+            <p class="text-muted mb-3" style="font-size:.85rem;">↕ Drag notes up or down to reorder them.</p>
+            <div id="listView" class="d-flex flex-column gap-3">
+                <div id="listEmpty" class="empty-state" style="display:none;">
+                    <div class="empty-icon">📝</div>
+                    <p>No notes yet. Click <strong>+ New Note</strong> to get started.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════ create and edit modal ═══════════ -->
+    <div id="noteModal" role="dialog" aria-modal="true" aria-labelledby="modalHeading">
+        <div id="noteModalCard">
+            <h5 id="modalHeading">Create a New Note</h5>
+
+            <!-- Colour picker -->
+            <label class="form-label">Colour</label>
+            <div class="color-picker" id="colorPicker">
+                <div class="color-dot selected" data-color="yellow"  style="background:#fff9c4; outline:2px solid #f9d835;"></div>
+                <div class="color-dot"          data-color="blue"    style="background:#dbeafe; outline:2px solid #60a5fa;"></div>
+                <div class="color-dot"          data-color="green"   style="background:#dcfce7; outline:2px solid #4ade80;"></div>
+                <div class="color-dot"          data-color="pink"    style="background:#fce7f3; outline:2px solid #f472b6;"></div>
+                <div class="color-dot"          data-color="orange"  style="background:#ffedd5; outline:2px solid #fb923c;"></div>
+                <div class="color-dot"          data-color="purple"  style="background:#ede9fe; outline:2px solid #a78bfa;"></div>
+            </div>
+
+            <!-- Title -->
+            <div class="mb-3">
+                <label class="form-label" for="noteTitle">Title</label>
+                <input type="text" id="noteTitle" class="form-control" placeholder="Note title…" maxlength="60">
+            </div>
+
+            <!-- Content -->
+            <div class="mb-4">
+                <label class="form-label" for="noteContent">Content</label>
+                <textarea id="noteContent" class="form-control" rows="5" placeholder="Write your note here…"></textarea>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end">
+                <button class="btn btn-secondary" id="cancelNoteBtn">Cancel</button>
+                <button class="btn btn-primary"   id="saveNoteBtn">Save Note</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ expand and read modal ═══════════ -->
+    <div id="expandModal" role="dialog" aria-modal="true" aria-labelledby="expandHeading">
+        <div id="expandModalCard">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h2 id="expandHeading" class="expand-title mb-0"></h2>
+                <button class="btn btn-outline-secondary btn-sm" id="closeExpandBtn">✕ Close</button>
+            </div>
+            <div id="expandContent" class="expand-content"></div>
+            <div class="mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+                <button class="btn btn-outline-primary btn-sm" id="expandEditBtn">✏ Edit</button>
+                <button class="btn btn-outline-danger  btn-sm" id="expandDeleteBtn">🗑 Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    (() => {
+        /* Data Storage */
+        const STORAGE_KEY = 'motion_notes_v1';
+
+        function loadNotes() {
+            try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+            catch { return []; }
+        }
+        function saveNotes(notes) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+        }
+
+        /* Default sample notes so the board isn't empty on first visit */
+        function seedIfEmpty() {
+            if (loadNotes().length === 0) {
+                const samples = [
+                    { id: uid(), title: 'Welcome to Motion 👋', content: 'Drag me anywhere on the board!\nSwitch to List view for full-size notes.', color: 'yellow', x: 40,  y: 60 },
+                    { id: uid(), title: 'Shopping List',        content: '- Milk\n- Eggs\n- Bread\n- Coffee', color: 'green',  x: 280, y: 100 },
+                    { id: uid(), title: 'Project Ideas',        content: 'Build a drag-and-drop scheduler with sticky notes and calendar integration.', color: 'blue', x: 520, y: 50 },
+                ];
+                saveNotes(samples);
+            }
+        }
+
+        function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+        /* Colour */
+        const COLOR_CLASS = {
+            yellow: 'sticky-yellow', blue: 'sticky-blue', green: 'sticky-green',
+            pink: 'sticky-pink', orange: 'sticky-orange', purple: 'sticky-purple',
+        };
+        const COLOR_HEX = {
+            yellow: '#f9d835', blue: '#60a5fa', green: '#4ade80',
+            pink: '#f472b6',   orange: '#fb923c', purple: '#a78bfa',
+        };
+        const COLOR_BG = {
+            yellow: '#fff9c4', blue: '#dbeafe', green: '#dcfce7',
+            pink: '#fce7f3',   orange: '#ffedd5', purple: '#ede9fe',
+        };
+
+        /* view state*/
+        let currentView = 'sticky'; // 'sticky' | 'list'
+
+        const stickySection = document.getElementById('stickySection');
+        const listSection   = document.getElementById('listSection');
+        const stickyBoard   = document.getElementById('stickyBoard');
+        const listView      = document.getElementById('listView');
+        const stickyEmpty   = document.getElementById('stickyEmpty');
+        const listEmpty     = document.getElementById('listEmpty');
+
+        document.getElementById('btnStickyView').addEventListener('click', () => switchView('sticky'));
+        document.getElementById('btnListView').addEventListener('click', () => switchView('list'));
+
+        function switchView(v) {
+            currentView = v;
+            document.getElementById('btnStickyView').classList.toggle('active', v === 'sticky');
+            document.getElementById('btnListView').classList.toggle('active', v === 'list');
+            stickySection.style.display = v === 'sticky' ? '' : 'none';
+            listSection.style.display   = v === 'list'   ? '' : 'none';
+        }
+
+        /* create and edit */
+        const noteModal    = document.getElementById('noteModal');
+        const modalHeading = document.getElementById('modalHeading');
+        const noteTitleEl  = document.getElementById('noteTitle');
+        const noteContentEl= document.getElementById('noteContent');
+        const colorPicker  = document.getElementById('colorPicker');
+        const saveNoteBtn  = document.getElementById('saveNoteBtn');
+        const cancelNoteBtn= document.getElementById('cancelNoteBtn');
+
+        let selectedColor = 'yellow';
+        let editingId     = null;
+
+        colorPicker.querySelectorAll('.color-dot').forEach(dot => {
+            dot.addEventListener('click', () => {
+                colorPicker.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+                dot.classList.add('selected');
+                selectedColor = dot.dataset.color;
+            });
+        });
+
+        function openModal(noteData = null) {
+            editingId = noteData ? noteData.id : null;
+            modalHeading.textContent = noteData ? 'Edit Note' : 'Create a New Note';
+            noteTitleEl.value   = noteData ? noteData.title   : '';
+            noteContentEl.value = noteData ? noteData.content : '';
+
+            /* Set colour */
+            const c = noteData ? noteData.color : 'yellow';
+            selectedColor = c;
+            colorPicker.querySelectorAll('.color-dot').forEach(d => {
+                d.classList.toggle('selected', d.dataset.color === c);
+            });
+
+            noteModal.classList.add('open');
+            noteTitleEl.focus();
+        }
+
+        function closeModal() { noteModal.classList.remove('open'); }
+
+        cancelNoteBtn.addEventListener('click', closeModal);
+        noteModal.addEventListener('click', e => { if (e.target === noteModal) closeModal(); });
+
+        saveNoteBtn.addEventListener('click', () => {
+            const title   = noteTitleEl.value.trim()   || 'Untitled';
+            const content = noteContentEl.value.trim() || '';
+
+            let notes = loadNotes();
+
+            if (editingId) {
+                notes = notes.map(n => n.id === editingId
+                    ? { ...n, title, content, color: selectedColor }
+                    : n);
+            } else {
+                /* Place new sticky at a slightly random position */
+                const x = 30 + Math.random() * (stickyBoard.offsetWidth - 250 || 300);
+                const y = 30 + Math.random() * 200;
+                notes.push({ id: uid(), title, content, color: selectedColor, x: Math.round(x), y: Math.round(y) });
+            }
+
+            saveNotes(notes);
+            closeModal();
+            render();
+        });
+
+        document.getElementById('newNoteBtn').addEventListener('click', () => openModal());
+
+        /* expand and read modal*/
+        const expandModal    = document.getElementById('expandModal');
+        const expandHeading  = document.getElementById('expandHeading');
+        const expandContent  = document.getElementById('expandContent');
+        const closeExpandBtn = document.getElementById('closeExpandBtn');
+        const expandEditBtn  = document.getElementById('expandEditBtn');
+        const expandDeleteBtn= document.getElementById('expandDeleteBtn');
+        let expandingId = null;
+
+        function openExpand(noteId) {
+            const note = loadNotes().find(n => n.id === noteId);
+            if (!note) return;
+            expandingId = noteId;
+            expandHeading.textContent = note.title;
+            expandContent.textContent = note.content;
+            expandModal.style.borderTop = `6px solid ${COLOR_HEX[note.color] || '#f9d835'}`;
+            expandModal.classList.add('open');
+        }
+
+        function closeExpand() { expandModal.classList.remove('open'); }
+
+        closeExpandBtn.addEventListener('click', closeExpand);
+        expandModal.addEventListener('click', e => { if (e.target === expandModal) closeExpand(); });
+
+        expandEditBtn.addEventListener('click', () => {
+            closeExpand();
+            const note = loadNotes().find(n => n.id === expandingId);
+            if (note) openModal(note);
+        });
+
+        expandDeleteBtn.addEventListener('click', () => {
+            deleteNote(expandingId);
+            closeExpand();
+        });
+
+        /* Delete  */
+        function deleteNote(id) {
+            saveNotes(loadNotes().filter(n => n.id !== id));
+            render();
+        }
+
+        /* Render Sticky Notes */
+        function renderSticky(notes) {
+            /* Remove old sticky notes but keep the empty-state div */
+            stickyBoard.querySelectorAll('.sticky-note').forEach(el => el.remove());
+
+            if (notes.length === 0) {
+                stickyEmpty.style.display = '';
+                return;
+            }
+            stickyEmpty.style.display = 'none';
+
+            notes.forEach(note => {
+                const el = document.createElement('div');
+                el.className = `sticky-note ${COLOR_CLASS[note.color] || 'sticky-yellow'}`;
+                el.dataset.id = note.id;
+                el.style.left = note.x + 'px';
+                el.style.top  = note.y + 'px';
+
+                el.innerHTML = `
+                    <div class="sticky-title">${escHtml(note.title)}</div>
+                    <div class="sticky-body">${escHtml(note.content)}</div>
+                    <div class="sticky-actions">
+                        <button class="btn-expand"       title="Expand note">⤢ View</button>
+                        <button class="btn-edit-sticky"  title="Edit note">✏</button>
+                        <button class="btn-delete-note"  title="Delete note">🗑</button>
+                    </div>`;
+
+                el.querySelector('.btn-expand').addEventListener('click', e => {
+                    e.stopPropagation(); openExpand(note.id);
+                });
+                el.querySelector('.btn-edit-sticky').addEventListener('click', e => {
+                    e.stopPropagation(); openModal(note);
+                });
+                el.querySelector('.btn-delete-note').addEventListener('click', e => {
+                    e.stopPropagation(); deleteNote(note.id);
+                });
+
+                makeDraggableOnBoard(el, note.id);
+                stickyBoard.appendChild(el);
+            });
+        }
+
+        /* GRag to sticky board*/
+        function makeDraggableOnBoard(el, id) {
+            let startX, startY, startLeft, startTop;
+
+            function onMove(cx, cy) {
+                const bRect = stickyBoard.getBoundingClientRect();
+                let newLeft = startLeft + (cx - startX);
+                let newTop  = startTop  + (cy - startY);
+                /* Clamp inside board */
+                newLeft = Math.max(0, Math.min(newLeft, bRect.width  - el.offsetWidth));
+                newTop  = Math.max(0, Math.min(newTop,  bRect.height - el.offsetHeight));
+                el.style.left = newLeft + 'px';
+                el.style.top  = newTop  + 'px';
+            }
+
+            function onEnd(cx, cy) {
+                el.classList.remove('dragging');
+                const bRect = stickyBoard.getBoundingClientRect();
+                let newLeft = Math.max(0, Math.min(startLeft + (cx - startX), bRect.width  - el.offsetWidth));
+                let newTop  = Math.max(0, Math.min(startTop  + (cy - startY), bRect.height - el.offsetHeight));
+                /* Persist position */
+                const notes = loadNotes().map(n =>
+                    n.id === id ? { ...n, x: Math.round(newLeft), y: Math.round(newTop) } : n
+                );
+                saveNotes(notes);
+                document.removeEventListener('mousemove', mouseMove);
+                document.removeEventListener('mouseup',   mouseUp);
+                document.removeEventListener('touchmove', touchMove);
+                document.removeEventListener('touchend',  touchEnd);
+            }
+
+            function mouseMove(e) { onMove(e.clientX, e.clientY); }
+            function mouseUp(e)   { onEnd(e.clientX, e.clientY); }
+            function touchMove(e) { e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); }
+            function touchEnd(e)  { const t = e.changedTouches[0]; onEnd(t.clientX, t.clientY); }
+
+            el.addEventListener('mousedown', e => {
+                if (e.target.tagName === 'BUTTON') return;
+                e.preventDefault();
+                el.classList.add('dragging');
+                startX = e.clientX; startY = e.clientY;
+                startLeft = parseInt(el.style.left) || 0;
+                startTop  = parseInt(el.style.top)  || 0;
+                document.addEventListener('mousemove', mouseMove);
+                document.addEventListener('mouseup',   mouseUp);
+            });
+            el.addEventListener('touchstart', e => {
+                if (e.target.tagName === 'BUTTON') return;
+                el.classList.add('dragging');
+                startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+                startLeft = parseInt(el.style.left) || 0;
+                startTop  = parseInt(el.style.top)  || 0;
+                document.addEventListener('touchmove', touchMove, { passive: false });
+                document.addEventListener('touchend',  touchEnd);
+            }, { passive: true });
+        }
+
+        /* Full-size veiw */
+        function renderList(notes) {
+            listView.querySelectorAll('.note-card').forEach(el => el.remove());
+
+            if (notes.length === 0) {
+                listEmpty.style.display = '';
+                return;
+            }
+            listEmpty.style.display = 'none';
+
+            notes.forEach(note => {
+                const card = document.createElement('div');
+                card.className = 'note-card';
+                card.dataset.id = note.id;
+
+                card.innerHTML = `
+                    <div class="note-color-bar" style="background:${COLOR_HEX[note.color] || '#f9d835'};"></div>
+                    <div class="note-body-full">
+                        <div class="d-flex align-items-start gap-2">
+                            <span class="drag-handle" title="Drag to reorder">⠿</span>
+                            <div class="flex-grow-1">
+                                <div class="note-title-full">${escHtml(note.title)}</div>
+                                <div class="note-content-full">${escHtml(note.content)}</div>
+                            </div>
+                        </div>
+                        <div class="note-meta">
+                            <span style="background:${COLOR_BG[note.color]};color:#334155;padding:2px 10px;border-radius:99px;font-size:.72rem;">
+                                ${note.color.charAt(0).toUpperCase() + note.color.slice(1)}
+                            </span>
+                            <div class="note-actions">
+                                <button class="btn-expand-list"  title="Expand">⤢ View</button>
+                                <button class="btn-edit-list"    title="Edit">✏ Edit</button>
+                                <button class="btn-delete-list"  title="Delete">🗑 Delete</button>
+                            </div>
+                        </div>
+                    </div>`;
+
+                card.querySelector('.btn-expand-list').addEventListener('click', () => openExpand(note.id));
+                card.querySelector('.btn-edit-list').addEventListener('click',   () => openModal(note));
+                card.querySelector('.btn-delete-list').addEventListener('click', () => deleteNote(note.id));
+
+                makeDraggableInList(card);
+                listView.appendChild(card);
+            });
+        }
+
+        /* Drag and drop (list order) */
+        let listDragEl   = null;   // the card being dragged
+        let listPlaceholder = null; // grey placeholder showing drop position
+
+        function makeDraggableInList(card) {
+            const handle = card.querySelector('.drag-handle');
+            if (!handle) return;
+
+            function onDragStart(clientY) {
+                listDragEl = card;
+
+                /* Create a placeholder the same height as the card */
+                listPlaceholder = document.createElement('div');
+                listPlaceholder.style.cssText = `
+                    height: ${card.offsetHeight}px;
+                    border: 2px dashed #93c5fd;
+                    border-radius: 1rem;
+                    background: #eff6ff;
+                    pointer-events: none;
+                `;
+                card.after(listPlaceholder);
+
+                /* Float the card */
+                const rect = card.getBoundingClientRect();
+                card.style.cssText += `
+                    position: fixed;
+                    z-index: 999;
+                    width: ${rect.width}px;
+                    left: ${rect.left}px;
+                    top: ${rect.top}px;
+                    opacity: .85;
+                    box-shadow: 0 8px 24px rgba(0,0,0,.18);
+                    pointer-events: none;
+                `;
+                card._dragOffsetY = clientY - rect.top;
+            }
+
+            function onDragMove(clientY) {
+                if (!listDragEl) return;
+                card.style.top = (clientY - card._dragOffsetY) + 'px';
+
+                /* Find which card the cursor is over and move placeholder */
+                const cards = [...listView.querySelectorAll('.note-card')].filter(c => c !== listDragEl);
+                let inserted = false;
+                for (const c of cards) {
+                    const r = c.getBoundingClientRect();
+                    if (clientY < r.top + r.height / 2) {
+                        listView.insertBefore(listPlaceholder, c);
+                        inserted = true;
+                        break;
+                    }
+                }
+                if (!inserted) listView.appendChild(listPlaceholder);
+            }
+
+            function onDragEnd() {
+                if (!listDragEl) return;
+
+                /* Put card back in flow where the placeholder is */
+                card.style.cssText = '';
+                listView.insertBefore(card, listPlaceholder);
+                listPlaceholder.remove();
+                listPlaceholder = null;
+                listDragEl = null;
+
+                persistListOrder();
+            }
+
+            /* Mouse */
+            handle.addEventListener('mousedown', e => {
+                e.preventDefault();
+                onDragStart(e.clientY);
+                const move = ev => onDragMove(ev.clientY);
+                const up   = ()  => { onDragEnd(); document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+                document.addEventListener('mousemove', move);
+                document.addEventListener('mouseup',   up);
+            });
+
+            /* Touch */
+            handle.addEventListener('touchstart', e => {
+                onDragStart(e.touches[0].clientY);
+                const move = ev => { ev.preventDefault(); onDragMove(ev.touches[0].clientY); };
+                const end  = ()  => { onDragEnd(); document.removeEventListener('touchmove', move); document.removeEventListener('touchend', end); };
+                document.addEventListener('touchmove', move, { passive: false });
+                document.addEventListener('touchend',  end);
+            }, { passive: true });
+        }
+
+        function persistListOrder() {
+            const ids = [...listView.querySelectorAll('.note-card')].map(el => el.dataset.id);
+            const notes = loadNotes();
+            const reordered = ids.map(id => notes.find(n => n.id === id)).filter(Boolean);
+            notes.forEach(n => { if (!reordered.find(r => r.id === n.id)) reordered.push(n); });
+            saveNotes(reordered);
+        }
+
+        /* The Master Render */
+        function render() {
+            const notes = loadNotes();
+            renderSticky(notes);
+            renderList(notes);
+        }
+
+        /* UTILS */
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g,'&amp;')
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;');
+        }
+
+        /* ── Boot ── */
+        seedIfEmpty();
+        render();
+    })();
+    </script>
+</body>
+</html>

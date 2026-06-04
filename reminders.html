@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reminders - Motion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Motion</a>
+            <div class="ms-auto">
+                <a href="dashboard.html" class="btn btn-outline-secondary me-2">Dashboard</a>
+                <a href="notes.html" class="btn btn-outline-secondary me-2">Notes</a>
+                <a href="calendar.html" class="btn btn-outline-secondary me-2">Calendar</a>
+                <a href="login.html" class="btn btn-danger">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Reminders -->
+    <section class="py-4">
+        <div class="container">
+            <h3>Reminders</h3>
+            <div class="row">
+
+                <!-- Placeholder for lets say the user is a unversity student -->
+                <div class="col-md-4 mb-4">
+                    <div class="card p-4">
+                        <div class="d-flex justify-content-between">
+                            <!--Placeholder, the user should be able to rename or customise this to their liking -->
+                            <h5>University</h5>
+                            <span class="badge bg-primary">4</span>
+                        </div>
+                        <ul class="list-unstyled mt-3">
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="uni1">
+                                    <label class="form-check-label" for="uni1">Complete this</label>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="uni2">
+                                    <label class="form-check-label" for="uni2">Do that</label>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="uni3">
+                                    <label class="form-check-label" for="uni3">Remember this</label>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="uni4">
+                                    <label class="form-check-label" for="uni4">Make time for that</label>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Work just used to demonstrate examples for the page so all are placeholders-->
+                <div class="col-md-4 mb-4">
+                    <div class="card p-4">
+                        <div class="d-flex justify-content-between">
+                            <h5>Work</h5>
+                            <span class="badge bg-primary">2</span>
+                        </div>
+                        <ul class="list-unstyled mt-3">
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="work1">
+                                    <label class="form-check-label" for="work1">Report</label>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="work2">
+                                    <label class="form-check-label" for="work2">Meeting</label>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- New Reminder -->
+                <div class="col-md-4 mb-4">
+                    <div class="card p-4 text-center">
+                        <h5>New Reminder</h5>
+                        <button class="btn btn-primary btn-lg mt-3">+</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
