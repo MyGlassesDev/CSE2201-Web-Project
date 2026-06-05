@@ -1,99 +1,147 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reminders - Motion</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <title>Tasks & Reminders - Motion</title>
+
+    <link rel="stylesheet" href="{% static 'app/content/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'app/content/site.css' %}">
+
+    <style>
+        .task-card {
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            border-top: 5px solid rgba(0,0,0,0.15);
+        }
+
+            .task-card.completed {
+                opacity: 0.65;
+            }
+
+                .task-card.completed .task-title {
+                    text-decoration: line-through;
+                    color: #6c757d;
+                }
+
+        .color-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .color-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+            .color-circle.selected {
+                border: 3px solid #222;
+            }
+
+        .soft-yellow {
+            background-color: #fff7bf;
+            border-top-color: #ffd60a;
+        }
+
+        .soft-blue {
+            background-color: #dbeafe;
+            border-top-color: #60a5fa;
+        }
+
+        .soft-green {
+            background-color: #dcfce7;
+            border-top-color: #4ade80;
+        }
+
+        .soft-pink {
+            background-color: #fce7f3;
+            border-top-color: #f472b6;
+        }
+
+        .soft-orange {
+            background-color: #ffedd5;
+            border-top-color: #fb923c;
+        }
+
+        .soft-purple {
+            background-color: #ede9fe;
+            border-top-color: #a78bfa;
+        }
+    </style>
 </head>
 <body>
 
     <!-- Navigation bar -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">Motion</a>
-            <div class="ms-auto">
-                <a href="dashboard.html" class="btn btn-outline-secondary me-2">Dashboard</a>
-                <a href="notes.html" class="btn btn-outline-secondary me-2">Notes</a>
-                <a href="calendar.html" class="btn btn-outline-secondary me-2">Calendar</a>
-                <a href="login.html" class="btn btn-danger">Logout</a>
-            </div>
-        </div>
-    </nav>
+    {% include 'app/navbar.html' %}
 
-    <!-- Reminders -->
     <section class="py-4">
         <div class="container">
-            <h3>Reminders</h3>
+            <h3>Tasks & Reminders</h3>
+
             <div class="row">
 
-                <!-- Placeholder for lets say the user is a unversity student -->
-                <div class="col-md-4 mb-4">
+                <!-- Task List -->
+                <div class="col-md-8 mb-4">
                     <div class="card p-4">
-                        <div class="d-flex justify-content-between">
-                            <!--Placeholder, the user should be able to rename or customise this to their liking -->
-                            <h5>University</h5>
-                            <span class="badge bg-primary">4</span>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5>My Tasks</h5>
+                            <span class="badge bg-primary" id="taskCount">0</span>
                         </div>
-                        <ul class="list-unstyled mt-3">
-                            <li>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="uni1">
-                                    <label class="form-check-label" for="uni1">Complete this</label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="uni2">
-                                    <label class="form-check-label" for="uni2">Do that</label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="uni3">
-                                    <label class="form-check-label" for="uni3">Remember this</label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="uni4">
-                                    <label class="form-check-label" for="uni4">Make time for that</label>
-                                </div>
-                            </li>
-                        </ul>
+
+                        <div id="taskList">
+                            <!-- Tasks will be added here by JavaScript -->
+                        </div>
                     </div>
                 </div>
 
-                <!-- Work just used to demonstrate examples for the page so all are placeholders-->
+                <!-- Add Task -->
                 <div class="col-md-4 mb-4">
                     <div class="card p-4">
-                        <div class="d-flex justify-content-between">
-                            <h5>Work</h5>
-                            <span class="badge bg-primary">2</span>
-                        </div>
-                        <ul class="list-unstyled mt-3">
-                            <li>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="work1">
-                                    <label class="form-check-label" for="work1">Report</label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="work2">
-                                    <label class="form-check-label" for="work2">Meeting</label>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                        <h5>Add New Task</h5>
 
-                <!-- New Reminder -->
-                <div class="col-md-4 mb-4">
-                    <div class="card p-4 text-center">
-                        <h5>New Reminder</h5>
-                        <button class="btn btn-primary btn-lg mt-3">+</button>
+                        <input type="text"
+                               id="taskInput"
+                               class="form-control mb-3"
+                               placeholder="Enter task name">
+
+                        <input type="date"
+                               id="taskDate"
+                               class="form-control mb-3">
+
+                        <input type="time"
+                               id="taskTime"
+                               class="form-control mb-3">
+
+                        <label class="form-label">Task Colour</label>
+
+                        <div class="color-options">
+                            <div class="color-circle soft-yellow selected" onclick="selectTaskColor('soft-yellow', this)"></div>
+                            <div class="color-circle soft-blue" onclick="selectTaskColor('soft-blue', this)"></div>
+                            <div class="color-circle soft-green" onclick="selectTaskColor('soft-green', this)"></div>
+                            <div class="color-circle soft-pink" onclick="selectTaskColor('soft-pink', this)"></div>
+                            <div class="color-circle soft-orange" onclick="selectTaskColor('soft-orange', this)"></div>
+                            <div class="color-circle soft-purple" onclick="selectTaskColor('soft-purple', this)"></div>
+                        </div>
+
+                        <button class="btn btn-primary w-100" onclick="addTask()">
+                            + Add Task
+                        </button>
+                    </div>
+
+                    <div class="card p-4 mt-4 soft-yellow">
+                        <h5>Future Calendar Integration</h5>
+                        <p class="mb-0">
+                            A future version can connect scheduled tasks directly to the calendar,
+                            allowing task deadlines and reminders to appear beside calendar events.
+                        </p>
                     </div>
                 </div>
 
@@ -101,7 +149,115 @@
         </div>
     </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let tasks = JSON.parse(localStorage.getItem("motionTasks")) || [];
+        let selectedTaskColor = "soft-yellow";
+
+        function saveTasks() {
+            localStorage.setItem("motionTasks", JSON.stringify(tasks));
+        }
+
+        function selectTaskColor(color, element) {
+            selectedTaskColor = color;
+
+            document.querySelectorAll(".color-circle").forEach(function (circle) {
+                circle.classList.remove("selected");
+            });
+
+            element.classList.add("selected");
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById("taskList");
+            const taskCount = document.getElementById("taskCount");
+
+            taskList.innerHTML = "";
+            taskCount.textContent = tasks.length;
+
+            if (tasks.length === 0) {
+                taskList.innerHTML = `
+                    <p class="text-muted mb-0">
+                        No tasks added yet.
+                    </p>
+                `;
+                return;
+            }
+
+            tasks.forEach(function (task, index) {
+                const item = document.createElement("div");
+                item.className = "task-card " + task.color + (task.completed ? " completed" : "");
+
+                item.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="task-title mb-1">${task.text}</h6>
+
+                            <small class="text-muted">
+                                ${task.date ? "Date: " + task.date : "No date"}
+                                ${task.time ? " | Time: " + task.time : ""}
+                            </small>
+                        </div>
+
+                        <div>
+                            <input type="checkbox"
+                                   class="form-check-input me-2"
+                                   ${task.completed ? "checked" : ""}
+                                   onchange="toggleTask(${index})">
+
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(${index})">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                taskList.appendChild(item);
+            });
+        }
+
+        function addTask() {
+            const taskInput = document.getElementById("taskInput");
+            const taskDate = document.getElementById("taskDate");
+            const taskTime = document.getElementById("taskTime");
+
+            const taskText = taskInput.value.trim();
+
+            if (taskText === "") {
+                alert("Please enter a task.");
+                return;
+            }
+
+            tasks.push({
+                text: taskText,
+                date: taskDate.value,
+                time: taskTime.value,
+                color: selectedTaskColor,
+                completed: false
+            });
+
+            taskInput.value = "";
+            taskDate.value = "";
+            taskTime.value = "";
+
+            saveTasks();
+            renderTasks();
+        }
+
+        function toggleTask(index) {
+            tasks[index].completed = !tasks[index].completed;
+            saveTasks();
+            renderTasks();
+        }
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            saveTasks();
+            renderTasks();
+        }
+
+        renderTasks();
+    </script>
+
+    <script src="{% static 'app/scripts/bootstrap.bundle.min.js' %}"></script>
 </body>
 </html>
-

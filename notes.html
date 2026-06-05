@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,16 +10,18 @@
     <link rel="stylesheet" href="CSS/style.css">
     <style>
         /* ── View toggle ── */
-        .view-toggle .btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .view-toggle .btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
 
         /*Sticky Notes*/
         #stickyBoard {
             position: relative;
             min-height: 600px;
             background-color: #f1f5f9;
-            background-image:
-                linear-gradient(rgba(37,99,235,.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(37,99,235,.06) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(37,99,235,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,.06) 1px, transparent 1px);
             background-size: 32px 32px;
             border-radius: 1rem;
             border: 1px solid var(--gray-200);
@@ -38,18 +42,50 @@
             flex-direction: column;
             transition: box-shadow .15s, transform .15s;
             z-index: 10;
-
         }
-        .sticky-note:active { cursor: grabbing; box-shadow: 6px 8px 22px rgba(0,0,0,.22); transform: rotate(1deg) scale(1.03); z-index: 100; }
-        .sticky-note.dragging { opacity: .85; z-index: 200; }
+
+            .sticky-note:active {
+                cursor: grabbing;
+                box-shadow: 6px 8px 22px rgba(0,0,0,.22);
+                transform: rotate(1deg) scale(1.03);
+                z-index: 100;
+            }
+
+            .sticky-note.dragging {
+                opacity: .85;
+                z-index: 200;
+            }
 
         /* Sticky colour variants */
-        .sticky-yellow { background: #fff9c4; border-top: 6px solid #f9d835; }
-        .sticky-blue   { background: #dbeafe; border-top: 6px solid #60a5fa; }
-        .sticky-green  { background: #dcfce7; border-top: 6px solid #4ade80; }
-        .sticky-pink   { background: #fce7f3; border-top: 6px solid #f472b6; }
-        .sticky-orange { background: #ffedd5; border-top: 6px solid #fb923c; }
-        .sticky-purple { background: #ede9fe; border-top: 6px solid #a78bfa; }
+        .sticky-yellow {
+            background: #fff9c4;
+            border-top: 6px solid #f9d835;
+        }
+
+        .sticky-blue {
+            background: #dbeafe;
+            border-top: 6px solid #60a5fa;
+        }
+
+        .sticky-green {
+            background: #dcfce7;
+            border-top: 6px solid #4ade80;
+        }
+
+        .sticky-pink {
+            background: #fce7f3;
+            border-top: 6px solid #f472b6;
+        }
+
+        .sticky-orange {
+            background: #ffedd5;
+            border-top: 6px solid #fb923c;
+        }
+
+        .sticky-purple {
+            background: #ede9fe;
+            border-top: 6px solid #a78bfa;
+        }
 
 
         .sticky-note .sticky-title {
@@ -60,7 +96,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-
         }
 
 
@@ -83,21 +118,29 @@
         }
 
 
-        .sticky-note .sticky-actions button {
-            background: none;
-            border: none;
-            padding: 2px 5px;
-            border-radius: .3rem;
-            font-size: .7rem;
-            cursor: pointer;
-            color: #64748b;
-            transition: background .1s;
-        }
+            .sticky-note .sticky-actions button {
+                background: none;
+                border: none;
+                padding: 2px 5px;
+                border-radius: .3rem;
+                font-size: .7rem;
+                cursor: pointer;
+                color: #64748b;
+                transition: background .1s;
+            }
 
 
-        .sticky-note .sticky-actions button:hover { background: rgba(0,0,0,.08); }
-        .sticky-note .sticky-actions .btn-expand { color: #2563eb; }
-        .sticky-note .sticky-actions .btn-delete-note { color: #dc2626; }
+                .sticky-note .sticky-actions button:hover {
+                    background: rgba(0,0,0,.08);
+                }
+
+            .sticky-note .sticky-actions .btn-expand {
+                color: #2563eb;
+            }
+
+            .sticky-note .sticky-actions .btn-delete-note {
+                color: #dc2626;
+            }
 
 
         /* full size note veiw*/
@@ -109,7 +152,10 @@
             overflow: hidden;
         }
 
-        #listView .note-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+            #listView .note-card:hover {
+                box-shadow: var(--shadow-md);
+                transform: translateY(-2px);
+            }
 
         .note-card .note-color-bar {
             height: 6px;
@@ -143,19 +189,24 @@
             border-top: 1px solid var(--gray-200);
         }
 
-        .note-card .note-meta .note-actions button {
-            background: none;
-            border: none;
-            padding: 3px 8px;
-            border-radius: .4rem;
-            font-size: .78rem;
-            cursor: pointer;
-            color: #64748b;
-            transition: background .1s;
-        }
+            .note-card .note-meta .note-actions button {
+                background: none;
+                border: none;
+                padding: 3px 8px;
+                border-radius: .4rem;
+                font-size: .78rem;
+                cursor: pointer;
+                color: #64748b;
+                transition: background .1s;
+            }
 
-        .note-card .note-meta .note-actions button:hover { background: var(--gray-100); }
-        .note-card .note-meta .note-actions .btn-delete-list { color: #dc2626; }
+                .note-card .note-meta .note-actions button:hover {
+                    background: var(--gray-100);
+                }
+
+            .note-card .note-meta .note-actions .btn-delete-list {
+                color: #dc2626;
+            }
 
         /* drag and drop listing order*/
         #listView .note-card.drag-over {
@@ -163,8 +214,13 @@
             outline-offset: 2px;
         }
 
-        #listView .note-card[draggable="true"] { cursor: grab; }
-        #listView .note-card[draggable="true"]:active { cursor: grabbing; }
+        #listView .note-card[draggable="true"] {
+            cursor: grab;
+        }
+
+            #listView .note-card[draggable="true"]:active {
+                cursor: grabbing;
+            }
 
 
         /* create and edit note*/
@@ -179,7 +235,9 @@
             justify-content: center;
         }
 
-        #noteModal.open { display: flex; }
+            #noteModal.open {
+                display: flex;
+            }
 
         #noteModalCard {
             background: var(--white);
@@ -189,19 +247,49 @@
             box-shadow: var(--shadow-lg);
             animation: popIn .18s ease;
         }
-        @keyframes popIn { from { transform: scale(.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        #noteModalCard h5 { font-weight: 700; font-size: 1.1rem; margin-bottom: 1.25rem; }
+        @keyframes popIn {
+            from {
+                transform: scale(.92);
+                opacity: 0;
+            }
 
-        .color-picker { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        #noteModalCard h5 {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
         .color-dot {
-            width: 26px; height: 26px; border-radius: 50%;
-            cursor: pointer; border: 2px solid transparent;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
             transition: transform .1s, border-color .1s;
         }
 
-        .color-dot:hover { transform: scale(1.15); }
-        .color-dot.selected { border-color: #0f172a; transform: scale(1.15); }
+            .color-dot:hover {
+                transform: scale(1.15);
+            }
+
+            .color-dot.selected {
+                border-color: #0f172a;
+                transform: scale(1.15);
+            }
 
         /* Fullscreen note expand modal */
         #expandModal {
@@ -215,7 +303,10 @@
             justify-content: center;
         }
 
-        #expandModal.open { display: flex; }
+            #expandModal.open {
+                display: flex;
+            }
+
         #expandModalCard {
             background: var(--white);
             border-radius: 1.25rem;
@@ -227,8 +318,18 @@
             animation: popIn .18s ease;
         }
 
-        #expandModalCard .expand-title { font-size: 1.4rem; font-weight: 700; margin-bottom: .75rem; }
-        #expandModalCard .expand-content { font-size: 1rem; color: #334155; white-space: pre-wrap; line-height: 1.75; }
+            #expandModalCard .expand-title {
+                font-size: 1.4rem;
+                font-weight: 700;
+                margin-bottom: .75rem;
+            }
+
+            #expandModalCard .expand-content {
+                font-size: 1rem;
+                color: #334155;
+                white-space: pre-wrap;
+                line-height: 1.75;
+            }
 
         /* Empty state */
         .empty-state {
@@ -236,8 +337,12 @@
             padding: 4rem 2rem;
             color: var(--gray-500);
         }
-        
-        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: .4; }
+
+            .empty-state .empty-icon {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+                opacity: .4;
+            }
 
         /* Drag handle for list view*/
         .drag-handle {
@@ -246,23 +351,16 @@
             padding: 0 .5rem;
             font-size: 1.1rem;
         }
-        .drag-handle:active { cursor: grabbing; }
+
+            .drag-handle:active {
+                cursor: grabbing;
+            }
     </style>
 </head>
 <body>
 
     <!-- Navigation bar -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">Motion</a>
-            <div class="ms-auto d-flex align-items-center gap-2">
-                <a href="index.html" class="btn btn-outline-secondary rounded-pill px-4">Dashboard</a>
-                <a href="calendar.html" class="btn btn-outline-secondary rounded-pill px-4">Calendar</a>
-                <a href="reminders.html" class="btn btn-outline-secondary rounded-pill px-4">Reminders</a>
-                <a href="login.html" class="btn btn-danger rounded-pill px-4">Logout</a>
-            </div>
-        </div>
-    </nav>
+    {% include 'app/navbar.html' %}
 
     <!-- Header + controls -->
     <section class="py-4">
@@ -314,12 +412,12 @@
             <!-- Colour picker -->
             <label class="form-label">Colour</label>
             <div class="color-picker" id="colorPicker">
-                <div class="color-dot selected" data-color="yellow"  style="background:#fff9c4; outline:2px solid #f9d835;"></div>
-                <div class="color-dot"          data-color="blue"    style="background:#dbeafe; outline:2px solid #60a5fa;"></div>
-                <div class="color-dot"          data-color="green"   style="background:#dcfce7; outline:2px solid #4ade80;"></div>
-                <div class="color-dot"          data-color="pink"    style="background:#fce7f3; outline:2px solid #f472b6;"></div>
-                <div class="color-dot"          data-color="orange"  style="background:#ffedd5; outline:2px solid #fb923c;"></div>
-                <div class="color-dot"          data-color="purple"  style="background:#ede9fe; outline:2px solid #a78bfa;"></div>
+                <div class="color-dot selected" data-color="yellow" style="background:#fff9c4; outline:2px solid #f9d835;"></div>
+                <div class="color-dot" data-color="blue" style="background:#dbeafe; outline:2px solid #60a5fa;"></div>
+                <div class="color-dot" data-color="green" style="background:#dcfce7; outline:2px solid #4ade80;"></div>
+                <div class="color-dot" data-color="pink" style="background:#fce7f3; outline:2px solid #f472b6;"></div>
+                <div class="color-dot" data-color="orange" style="background:#ffedd5; outline:2px solid #fb923c;"></div>
+                <div class="color-dot" data-color="purple" style="background:#ede9fe; outline:2px solid #a78bfa;"></div>
             </div>
 
             <!-- Title -->
@@ -336,7 +434,7 @@
 
             <div class="d-flex gap-2 justify-content-end">
                 <button class="btn btn-secondary" id="cancelNoteBtn">Cancel</button>
-                <button class="btn btn-primary"   id="saveNoteBtn">Save Note</button>
+                <button class="btn btn-primary" id="saveNoteBtn">Save Note</button>
             </div>
         </div>
     </div>
@@ -357,8 +455,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-    (() => {
+    <script>(() => {
         /* Data Storage */
         const STORAGE_KEY = 'motion_notes_v1';
 
@@ -786,7 +883,6 @@
         /* ── Boot ── */
         seedIfEmpty();
         render();
-    })();
-    </script>
+    })();</script>
 </body>
 </html>

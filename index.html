@@ -1,21 +1,24 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Motion</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+
+    <link rel="stylesheet" href="{% static 'app/content/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'app/content/site.css' %}">
 </head>
 <body>
 
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="index.html">Motion</a>
+            <a class="navbar-brand" href="{% url 'home' %}">Motion</a>
             <div class="ms-auto">
-                <a href="login.html" class="btn btn-outline-primary me-2">Login</a>
-                <a href="register.html" class="btn btn-primary">Register</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-primary me-2">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Register</a>
             </div>
         </div>
     </nav>
@@ -25,7 +28,7 @@
         <div class="container">
             <h1>Organise All Your Notes Here</h1>
             <p class="lead">Manage your notes, schedules, and reminders all in one place.</p>
-            <a href="register.html" class="btn btn-primary btn-lg">Get Started</a>
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Get Started</a>
         </div>
     </section>
 
@@ -35,19 +38,19 @@
             <div class="row text-center">
                 <div class="col-md-4">
                     <div class="card p-4">
-                        <h4> Note Taking</h4>
+                        <h4>Note Taking</h4>
                         <p>Create and manage your notes with sticky note style popups.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="card p-4">
-                        <h4> Calendar & Scheduling</h4>
+                        <h4>Calendar & Scheduling</h4>
                         <p>Keep track of your schedule and plan your days effectively.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="card p-4">
-                        <h4> Reminders</h4>
+                        <h4>Reminders</h4>
                         <p>Set reminders for important tasks and events.</p>
                     </div>
                 </div>
@@ -55,7 +58,6 @@
         </div>
     </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'app/scripts/bootstrap.bundle.min.js' %}"></script>
 </body>
 </html>
-
